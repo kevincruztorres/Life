@@ -36,7 +36,7 @@ void initWorld(State world[][MAXCOLS]);
 * since these rows and columns are used as a "border"
 * around the world grid
 */
-void display(State world[][MAXCOLS]);
+void display(State world[][MAXCOLS], int row, int col);
 
 /*
 * getFile will get a filename from the user. It then attmpts
@@ -68,29 +68,39 @@ int main()
 	State world[MAXROWS][MAXCOLS];
 	int generation = 0;
 	bool stop = false;
-
+	char input;
 	
-	// TODO: set up and initialize the 'world' array
+	initWorld(world);
+	getFile(world);
 
-
-
+	//do while for each generation
 	do
 	{
+		cout << "Generation: " << generation << "\t";
+		cout << "<Enter> to continue / <Q + Enter> to quit:" << "\n";
+
+		cin.get(input);
+
 		// system("cls") clears the screen; only works on Windows machines
 		// You will probably need to comment this out if working on
 		// a non-Windows machine
 		system("cls");
 
-		display(world);
+		// to make it stop or continue depending on generation
+		if (input == 'Q' || input == 'q')
+		{
+			stop = true;
+		}
+		else
+		{
+			display(world, MAXWORLDROWS, MAXWORLDCOLS);
+
+			calcNewWorld(world);
+		}
+
+		// must increase the generation each time
 		generation++;
-		cout << "Generation: " << generation << "\t";
-		cout << "<ENTER> to continue / <Q + ENTER> to quit: ";
 		
-		// TODO: get input from user and decide whether to quit the loop
-		// and whether to compute a new generation
-
-
-
 	} while (!stop);
 
 	return 0;
@@ -98,153 +108,141 @@ int main()
 
 int neighborCount(State world[][MAXCOLS], int row, int col)
 {
-	// This code checks to make sure you aren't trying to count neighbors for any
-	// position on row #0, or on row #MAXWORLDROWS+1,
-	// or in column 0, or in columnn MAXWORLDCOLUMNS+1
-	// because if you are, you are going to run into array out-of-bounds problems
-	if (row < 1 || row > MAXWORLDROWS)
-	{
-		cerr << "ERROR: invalid row parameter " << row << " in neighborCount\n";
-		exit(1);
-	}
-	else if (col < 1 || col > MAXWORLDCOLS)
-	{
-		cerr << "ERROR: invalid col parameter " << col << " in neighborCount\n";
-		exit(1);
-	}
+	// need to set the counter at 0
+	int count = 0;
 
-	int i = 0;
+	// calculate each one of the eight neighbors
+	count = count + (int)world[row - 1][col - 1];
+	count = count + (int)world[row + 1][col + 1];
+	count = count + (int)world[row + 1][col - 1];
+	count = count + (int)world[row - 1][col + 1];
+	count = count + (int)world[row][col - 1];
+	count = count + (int)world[row][col + 1];
+	count = count + (int)world[row - 1][col];
+	count = count + (int)world[row + 1][col];
 
-	// TODO: write neighborCount code
-	for (int x = 0; x < MAXROWS; x++)
-	{
-		// need to get inside 
-		for (int y = 0; y < MAXCOLS; y++)
-		{
-			// first neighbor
-			if (State world[x - 1, y - 1] = 1)			// idk how to fix this, like how do we get into the neighbor space
-			{
-				i++;
-			}
-			// second neighbor
-			if (State world[x - 1, y] = 1)
-			{
-				i++;
-			}
-			// third neighbor
-			if (State world[x - 1, y + 1] = 1)
-			{
-				i++;
-			}
-			// fourth neighbor 
-			if (State world[x, y - 1] = 1)
-			{
-				i++;
-			}
-			// fifth neighbor
-			if (State world[x, y + 1] = 1)
-			{
-				i++;
-			}
-			// sixth neighbor
-			if (State world[x + 1, y - 1] = 1)
-			{
-				i++;
-			}
-			// seventh neighbor
-			if (State world[x + 1, y] = 1)
-			{
-				i++;
-			}
-			// eigth neighbor
-			if (State world[x + 1, y + 1] = 1)
-			{
-				i++;
-			}
-
-			// i also feel like there is a lot easier way to do this
-
-
-		}
-
-
-
-	return i;
+	return count;
 }
 
 void calcNewWorld(State world[][MAXCOLS])
 {
 	// TODO: write calcNewWorld code
 
-	// need to create a new array to hold the new generation so it will not override the original array
-	for (int i = 0; i < MAXROWS; i++)
+	// need to call the neighbor count function
+	int count = neighborCount(world, MAXROWS, MAXCOLS);
+
+	// this is the new array so we do not overwrite the original one
+	State currentWorld[MAXROWS][MAXCOLS];
+
+	// create for loops to get the number of neighbors for each cell
+	// we are setting the new array equal to the original array
+	for (int row = 0; row < MAXROWS; row++)
 	{
-		// initialzing the rows with "empty" 
-		for (int j = 0; j < MAXCOLS; j++)
+		for (int col = 0; col < MAXCOLS; col++)
 		{
-			if (the new neighbor count i = 0, 1, 4, 5, 6, 7, 8)
+			currentWorld[row][col] = world[row][col];
+		}
+	}
+
+	// calculating the new world now
+	for (int row = 0; row < MAXWORLDROWS; row++)
+	{
+		for (int col = 0; col < MAXWORLDCOLS; col++)
+		{
+			// create a local variable cnt for another counter 
+			int cnt = neighborCount(currentWorld, row, col);
+
+			// if else statements calculating to see if we should add life 
+			if (world[row][col] == State::alive && cnt < 2)
 			{
-				snprintf into a new array to hold the new generation[" "];
+				world[row][col] = State::dead;
 			}
-			else if (the new neighbor count i = 2)
+
+			else
 			{
-				snprintf into a new array to hold the new generation["*"];
-			}
-			else if (the new neighbor count i = 3)
-			{
-				adding a new asterick so it would be the same as neighbor count of 2;
+				if (cnt == 3)
+				{
+					world[row][col] = State::alive;
+				}
+
+				else if (cnt > 3)
+				{
+					world[row][col] = State::dead;
+				}
+
 			}
 		}
 	}
 
-	
 }
 
-void getFile(State world[][MAXCOLS])
+oid getFile(State world[][MAXCOLS])
 {
+	// TODO: write getFile code
 	ifstream inFile;
-	int row = 1;
+	char line[MAXCOLS];
+	char array[FILENAMESIZE];
+	bool check = false;
 
-	// TODO: Write getFile code
-	// Make sure row is incremented each time you read a line from the file
-	const int BUFFERSIZE = 30;
-	char buffer[BUFFERSIZE];
-	char file;							// shouldn't be a char but idk what type of variable
+	// creating variables for reading the file
+	char c;
+	int col = 0;
+	int row = 0;
 
-	cout << "Enter file name: ";
-	cin >> file;						// somehow you have to access the file that the user enters
-	inFile.open("file");
-	
+	// having the user enter the file 
+	std::cout << "Enter file name: " << '\n';
+	cin.get(array, FILENAMESIZE, '\n');
+	inFile.open(array);
+
+	// error if file doesn't open
+	if (inFile.fail())
+	{
+		cerr << "\nERROR: Input file cannot be opened.\n";
+	}
+
+	// reading the file and outputting "*" and " "
+	while (!inFile.eof())
+	{
+		if (inFile.get(c)) {
+
+			if (c == '\n')
+			{
+				row++;
+				col = 0;
+			}
+			else {
+			if (c == CELL)
+				{
+					world[row][col] = State::alive;
+				}
+				else if (c == EMPTY)
+				{
+					world[row][col] = State::dead;
+				}
+				col++;
+			}
+		}
+	}
 	// After file reading is finished, this code checks to see if the reading stopped
 	// because of too many characters on a line in the file, or too many rows in the file
 	// It is possible that you might have to change the conditions here depending on
 	// exactly how you choose to read the file
-	if (!inFile.eof())
+	if (!inFile.eof() && (col >= MAXWORLDCOLS && c != '\n') || (row >= MAXWORLDROWS && c != '\n'))
 	{
-		if (row <= MAXWORLDROWS)
-		{
-			cerr << "\nERROR: Line " << row << " in input file contains more than " << MAXWORLDCOLS << " chars\n";
-		}
-		else
+		if (col >= MAXWORLDCOLS && c != '\n')
 		{
 			cerr << "\nERROR: There are more than " << MAXWORLDROWS << " lines in the file\n";
+		}
+		else if (row >= MAXWORLDROWS && c != '\n')
+		{
+			cerr << "\nERROR: Line " << row << " in input file contains more than " << MAXWORLDCOLS << " chars\n";
 		}
 		inFile.close();
 		exit(1);
 	}
-
-	// now we have to read the file line by line
-	inFile.getline(buffer, BUFFERSIZE); // this would only read one line of text
-	while (!inFile.eof()) // we are not at end of file (EOF)
-	{
-		cout << buffer << endl;
-		inFile.getline(buffer, BUFFERSIZE);			// this is how we read from a file
-	}
-
-
 	inFile.close();
 }
-
+	
 void display(State world[][MAXCOLS])
 {
 	// TODO: write the display code
