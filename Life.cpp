@@ -243,41 +243,40 @@ oid getFile(State world[][MAXCOLS])
 	inFile.close();
 }
 	
-void display(State world[][MAXCOLS])
+void display(State world[][MAXCOLS], int row, int col)
 {
-	// TODO: write the display code
+	// TODO: write display code
 
-	// somehow we have to make sure that it starts displaying second row in and now in the first row because of the border
-	// so we have to fix the for loops 
-
-	for (int i = 0; i < MAXROWS; i++)
+	// for loops to display onto the screen
+	for (int row = 0; row < MAXROWS; row++)
 	{
-		for (int j = 0; j < MAXCOLS; j++)
+
+		for (int col = 0; col < MAXCOLS; col++)
 		{
-			if (world[i][j] == (State = dead));
+
+			if (world[row][col] == State::dead)
 			{
 				cout << EMPTY;
 			}
-			else
+			else if (world[row][col] == State::alive)
 			{
 				cout << CELL;
 			}
 		}
-	} // we do not need to cout endl; it will reach the max columns and move onto the next one
-	// if we did have the endl; then you would be going to a new line each particular point in the array
+		cout << "\n";
+	}
 }
 
 void initWorld(State world[][MAXCOLS])
 {
 	// TODO: write initWorld code
 	// counting through all of the columns   
-	for (int i = 0; i < MAXROWS; i++)
+	for (int row = 0; row < MAXROWS; row++)
 	{
 		// initialzing the rows with "empty" 
-		for (int j = 0; j < MAXCOLS; j++)
+		for (int col = 0; col < MAXCOLS; col++)
 		{
-			world[i][j] = State = 0;
+			world[row][col] = State::dead;
 		}
 	}
-
 }
